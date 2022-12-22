@@ -1,0 +1,28 @@
+import os
+img_path =os.path.join(RootDir.root_dir, "Sodi/img")
+ann_path = os.path.join(RootDir.root_dir,"Sodi/ann")
+save_img_path = os.path.join(RootDir.root_dir, 'face_data/final_img')
+
+for img, ann in zip(sorted(os.listdir(img_path)), sorted(os.listdir(ann_path))):
+    read_img = cv2.imread(os.path.join(img_path, img))
+    read_ann_json = open(os.path.join(ann_path, ann))
+    loaded_ann_json =json.load(read_ann_json)
+    
+    file_name = os.path.basename(os.path.join(img_path, img))
+    
+    blur_img = cv2.blur(read_img, (25,25))
+    
+    for i, val in enumerate(loaded_ann_json["objects"]):
+        if val['geometryType'] == 'rectangle':
+            x1 = val['points']['exterior'][0][0]
+            y1 = val['points']['exterior'][0][1]
+            x2 = val['points']['exterior'][1][0]
+            y2 = val['points']['exterior'][1][1]
+            cropped_img = read_img[y1 : y2 , x1: x2]
+            blur_img[y1:y2, x1:x2] = cropped_img
+            final_img = blur_img
+            cv2.imwrite(os.path.join(save_img_path, file_name),final_img)
+            
+    
+
+        
